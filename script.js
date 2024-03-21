@@ -5,7 +5,26 @@ class BrainfuckInterpreter {
         this.max_cells = max_cells;  // if set to zero there is no limit
         this.instructionPointer = 0;
         this.dataPointer = 0;
+        this.stringToOperation = {
+            ">" : this.right,
+            "<" : this.left,
+            "+" : this.increment,
+            "-" : this.decrement,
+            "." : this.output,
+            "," : this.input,
+            "[" : this.loopStart,
+            "]" : this.loopEnd,
+        }
     }
+
+    right() {}
+    left() {}
+    increment() {}
+    decrement() {}
+    output() {}
+    input() {}
+    loopStart() {}
+    loopEnd() {}
     
     // removes unnecesary zeros
     popAllZeros() {
@@ -14,6 +33,4 @@ class BrainfuckInterpreter {
             else break;
         }
     }
-
-    // right left increment decrement output input loopStart loopEnd
 }
