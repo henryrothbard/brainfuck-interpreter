@@ -1,7 +1,7 @@
 class BrainfuckInterpreter {
     constructor(script = "", max_cells = 30000) {
-        this.script = script;
-        this.array = [];
+        this.script = this.cleanScript(script);
+        this.array = [0];
         this.max_cells = max_cells;  // if set to zero there is no limit
         this.instructionPointer = 0;
         this.dataPointer = 0;
@@ -17,8 +17,25 @@ class BrainfuckInterpreter {
         }
     }
 
-    right() {}
-    left() {}
+    cleanScript(script) {
+        const allowedChars = [">","<","+","-",".",",","[","]"];
+        let cleanScript = "";
+        for (let i = 0; i < script.length; i++) {
+            if (allowedChars.includes(script[i])) cleanScript += script[i];
+        }
+        return cleanScript;
+    }
+
+    right() {
+        this.dataPointer++;
+        if (this.dataPointer === this.array.length) this.array.push(0);
+    }
+
+    left() {
+        this.dataPointer--;
+        this.popAllZeros();
+    }
+    
     increment() {}
     decrement() {}
     output() {}
@@ -26,7 +43,7 @@ class BrainfuckInterpreter {
     loopStart() {}
     loopEnd() {}
     
-    // removes unnecesary zeros
+    // removes unnecessary zeros //unnecessary code
     popAllZeros() {
         for (let i = this.array.length - 1; i > this.dataPointer; i--) {
             if (this.array[i] === 0) this.array.pop();
