@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 class BrainfuckInterpreter {
     constructor(script = "", max_cells = 30000) {
         this.script = this.cleanScript(script);
