@@ -35,9 +35,17 @@ class BrainfuckInterpreter {
         this.dataPointer--;
         this.popAllZeros();
     }
-    
-    increment() {}
-    decrement() {}
+
+    increment() {
+        this.array[this.dataPointer]++;
+        if (this.array[this.dataPointer] > 255) this.array[this.dataPointer] = 0;
+    }
+
+    decrement() {
+        this.array[this.dataPointer]--;
+        if (this.array[this.dataPointer] < 0) this.array[this.dataPointer] = 255;
+    }
+
     output() {}
     input() {}
     loopStart() {}
@@ -51,3 +59,5 @@ class BrainfuckInterpreter {
         }
     }
 }
+
+//use web workers; add config;
