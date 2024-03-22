@@ -1,14 +1,10 @@
 const worker = new Worker("worker.js");
+const buffer = new SharedArrayBuffer(100);
+const view = new Uint8Array(buffer);
+worker.postMessage(buffer);
+console.log("SharedArrayBuffer");
 
-if (crossOriginIsolated) {
-    const buffer = new SharedArrayBuffer(100);
-    worker.postMessage(buffer);
-    console.log("SharedArrayBuffer")
-  } else {
-    const buffer = new ArrayBuffer(100);
-    worker.postMessage(buffer);
-    console.log("ArrayBuffer")
-}
+setTimeout(() => {console.log(Atomics.load(view, 0))}, 1)
 
 
 
