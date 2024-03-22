@@ -1,10 +1,18 @@
+const worker = new Worker("/worker.js");
+
+if (crossOriginIsolated) {
+    const buffer = new SharedArrayBuffer(100);
+    worker.postMessage(buffer);
+    console.log("SharedArrayBuffer")
+  } else {
+    const buffer = new ArrayBuffer(100);
+    worker.postMessage(buffer);
+    console.log("ArrayBuffer")
+}
 
 
 
-
-
-
-
+/*
 class BrainfuckInterpreter {
     constructor(script = "", max_cells = 30000) {
         this.script = this.cleanScript(script);
@@ -67,4 +75,4 @@ class BrainfuckInterpreter {
     }
 }
 
-//use web workers; add config;
+//use web workers; add config;*/

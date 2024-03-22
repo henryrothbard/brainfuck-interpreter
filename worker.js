@@ -1,6 +1,20 @@
-const config = {
-    maxCells: 30000,  // 0 for unbounded
-    cellBits: 8,  // max cell value:  2 ^ cellbits
-    cellSigned: false,  //  allow negative values
-    raiseErrors: false,  // raise non-critical errors and halt
+onmessage = (event) => {
+    const buffer = event.data;
+    const view = new Uint8Array(buffer);
+    Atomics.store(view, 0, 12);
 }
+
+
+/*const config = {initialized: false};
+const allowedChars = [">","<","+","-",".",",","[","]"];
+
+onmessage = (event) => {
+    if (!config.initialized && event.data.type === "init") {
+        config.maxCells = event.data.data.maxCells;
+    }
+}
+
+message = {
+    type: null,
+    data: {},
+}*/
