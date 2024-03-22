@@ -4,7 +4,7 @@ const view = new Uint8Array(buffer);
 worker.postMessage(buffer);
 console.log("SharedArrayBuffer");
 
-setTimeout(() => {console.log(Atomics.load(view, 0))}, 1)
+setTimeout(() => {console.log(Atomics.load(view, 0))}, 1000)
 
 
 
