@@ -1,3 +1,15 @@
+class BFInterpreter {
+    constructor() {
+        
+    }
+}
+
+
+
+
+
+
+
 const worker = new Worker("worker.js");
 const buffer = new SharedArrayBuffer(100);
 const view = new Uint8Array(buffer);
