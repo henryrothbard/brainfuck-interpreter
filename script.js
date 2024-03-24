@@ -1,14 +1,19 @@
+/*(class BFConfig {
+    constructor() {}
+}
+
 class BFInterpreter {
     static createTypedArray(buffer, bits, signed) {
         
     }
+    
     constructor(config) {
         this.buffer = new SharedArrayBuffer(config.maxCells);
         this.array = new 
         this.worker = new Worker("worker.js");
         this.config = config;
     }
-}
+}*/
 
 
 
