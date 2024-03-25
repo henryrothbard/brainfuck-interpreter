@@ -6,14 +6,28 @@
   <meta name="viewport" content="width=device-width">
   <title>Brainfuck Interpreter</title>
   <link rel="icon" type="image/x-icon" href="brain.svg">
-  <link href="style.css" rel="stylesheet" type="text/css"/>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
   <script src="coi-serviceworker.min.js"></script>
 </head>
 
 <body>
-  <div class="codeBlock" id="input"></div>
-  <div class="codeBlock" id="output"></div>
-  <div class="codeBlock" id="console"></div>
+  <div id="head">
+    <h1>Brainfuck Interpreter</h1>
+  </div>
+  <div class="codeBlock" id="input">
+    <div class="cbHead"><span>Input</span><span><span>Download </span><span>Upload</span></span></div>
+    <div class="cbContent">
+      <span id="nonEditableText" contenteditable="false">This is non-editable text. </span>
+      <span id="editableText" contenteditable="true">This is editable text.</span>
+    </div>
+  </div>
+  <div class="codeBlock" id="output">
+    <div class="cbHead"><span>Output</span></div>
+    <div class="cbContent">
+      <span id="nonEditableText" contenteditable="false">This is non-editable text. </span>
+      <span id="editableText" contenteditable="true">This is editable text.</span>
+    </div>
+  </div>
   <div id="controls">
     <div class="left">
       <div id="envStatus"></div>
