@@ -31,6 +31,9 @@ setTimeout(() => {console.log(Atomics.load(view, 0))}, 1000)
 
 
 
+
+
+
 /*
 class BrainfuckInterpreter {
     constructor(script = "", max_cells = 30000) {
