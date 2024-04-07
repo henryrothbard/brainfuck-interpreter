@@ -15,22 +15,22 @@
 
 <body>
   <div id="header">
-    <div>
+    <div id="titlebar">
       <h1>BRAINFUCK INTERPRETER</h1>
-      <button>INFO</button>
+      <button class="infoBtn svg"></button>
     </div>
-    <div>
+    <div id="toolbar">
       <div>
-        <button>ENV</button>
-        <p>STATUS</p>
+        <button class="envBtn svg" style="display: inline-block;">ENV</button>
+        <p id="envStatus" style="display: inline-block;">RUNNING...</p>
       </div>
       <div>
-        <button>RESET</button>
-        <button>RUN</button>
-        <button>STEP</button>
+        <button class="resetBtn svg">RESET</button>
+        <button class="playBtn svg">RUN</button>
+        <button class="stepBtn svg">STEP</button>
       </div>
       <div>
-        <button>SETTINGS</button>
+        <button class="settingsBtn svg">SETTINGS</button>
       </div>
     </div>
   </div>
