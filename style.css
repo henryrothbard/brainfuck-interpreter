@@ -54,13 +54,12 @@ button {
 }
 
 @keyframes envRunning {
-  0% {rotate: 0turn}
-  100% {rotate: 1turn;}
+  from {rotate: 0turn;} to {rotate: 1turn;}
 }
 
 .envBtn {
   --svg: var(--env-running-icon);
-  color: hsl(40, 100%, 40%);
+  color: hsl(40, 100%, 44%);
   height: 2.6rem; 
   width: 2.6rem;
   min-width: 2.6rem;
@@ -82,9 +81,9 @@ button {
 
 .resetBtn {
   --svg: var(--reset-icon);
-  height: 2.2rem; 
-  width: 2.2rem;
-  min-width: 2.2rem;
+  height: 2.1rem; 
+  width: 2.1rem;
+  min-width: 2.1rem;
 }
 
 .playBtn {
@@ -96,9 +95,9 @@ button {
 
 .stepBtn {
   --svg: var(--step-icon);
-  height: 2.4rem; 
-  width: 2.4rem;
-  min-width: 2.4rem;
+  height: 2.2rem; 
+  width: 2.2rem;
+  min-width: 2.2rem;
 }
 
 .settingsBtn {
@@ -109,8 +108,8 @@ button {
 }
 
 @media only screen and (max-width: 600px) {
-  #envStatus {
-    display: none;
+  .hideOnMobile {
+    display: none !important;
   }
 }
 
