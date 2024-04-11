@@ -15,6 +15,7 @@
 html {
   height: 100%;
   width: 100%;
+  touch-action: manipulation;
 }
 
 * {
@@ -26,7 +27,14 @@ body {
 }
 
 button {
+  color: black;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus, button:active {
+  outline: none;
+  background-color: black; /* Replace with your preferred color */
 }
 
 #header {
