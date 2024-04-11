@@ -22,10 +22,6 @@ html {
   margin: 0;
 }
 
-body {
-  overflow: hidden;
-}
-
 button {
   color: black;
   cursor: pointer;
