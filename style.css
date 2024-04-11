@@ -116,7 +116,15 @@ button {
 
 #content {
   height: calc(100vh - 8.35rem);
-  background-color: cornflowerblue;
+  background-color: white;
+  display: flex;
+  align-items: center;
+}
+
+.panel {
+  height: 100%;
+  flex: 1;
+  background-color: blue;
 }
 
 @media only screen and (max-width: 600px) {
