@@ -119,23 +119,42 @@ button:focus, button:active {
 }
 
 #content {
-  height: calc(100vh - 8rem);
+  height: calc(100dvh - 8rem);
   background-color: white;
   display: flex;
   align-items: center;
 }
 
-.panel {
+.panelContainer {
+  position: relative;
   height: 100%;
   flex: 1;
-  background-color: blue;
+  background-color: white;
+}
+
+.panel {
+  height: 97%; width: 97%;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  box-sizing: border-box;
+  border: 1px solid lightgray;
+  border-radius: 0.5rem;
+  background-color: lightgray;
 }
 
 @media only screen and (max-width: 600px) {
-  .hideOnMobile {
+  .hide600 {
     display: none !important;
   }
 }
+
+@media only screen and (max-width: 1024px) {
+  .hide1024 {
+    display: none !important;
+  }
+}
+
 
 .svg {
   display: inline-block;

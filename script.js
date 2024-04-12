@@ -1,3 +1,29 @@
+let BFConfig = {
+    i32: false,
+    signed: false,
+    tapeLength: 30000,
+    errorHandling: 0,
+};
+
+class BFInterpreter {
+    constructor(config) {
+        this.config = config;
+        this.worker = new Worker("worker.js");
+        this.buffer = new SharedArrayBuffer();
+    }
+
+    calculateBufferBytes() {
+        return this.config.tapeLength * (this.config.i32 ? 4 : 1);
+    }
+}
+
+
+
+
+
+
+
+
 /*(class BFConfig {
     constructor() {}
 }
