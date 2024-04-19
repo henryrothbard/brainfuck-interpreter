@@ -16,13 +16,13 @@
 <body>
   <div id="header">
     <div id="titlebar">
-      <h1>BRAINFUCK<span class="hide600"> INTERPRETER</span></h1>
+      <h1>BRAINFUCK<span class="hide500"> INTERPRETER</span></h1>
       <button class="infoBtn svg"></button>
     </div>
     <div id="toolbar" class="noSelect">
       <div>
-        <button class="envBtn svg"></button>
-        <p id="envStatus" class="hide600">Running</p>
+        <button id="envBtn" class="svg"></button>
+        <p id="envTxt" class="hide500"></p>
       </div>
       <div class="centerTools">
         <button class="resetBtn svg"></button>
@@ -37,13 +37,41 @@
   <div id="content">
     <div class="panelContainer" id="panel1">
       <div class="panel">
-        
+        <div class="panelHead">
+          <div class="panelTabBar">
+            <button class="panelTab active">
+              Input
+            </button>
+            <button class="panelTab">
+              Environment
+            </button>
+            <button class="panelTab show768" style="display: none;">
+              Output
+            </button>
+          </div>
+        </div>
+        <div class="panelContent" contenteditable="true" spellcheck="false">
+        </div>
       </div>
     </div>
-    <div class="hide1024 noSelect">|</div>
-    <div class="panelContainer hide1024" id="panel2">
-      <div class="panel"></div>
+    <div class="hide768 noSelect">|</div>
+    <div class="panelContainer hide768" id="panel2">
+      <div class="panel">
+        <div class="panelHead">
+          <div class="panelTabBar">
+            <button class="panelTab active">
+              Output
+            </button>
+          </div>
+        </div>
+        <div id="outputTerminal" class="panelContent">
+          <span id="editableOutput" contenteditable="true" style="outline: none;"></span>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div style="display: none;">
   </div>
 
   <script src="script.js"></script>

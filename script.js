@@ -1,124 +1,57 @@
-let BFConfig = {
-    i32: false,
-    signed: false,
-    tapeLength: 30000,
-    errorHandling: 0,
+// UI //
+document.getElementById("outputTerminal").addEventListener("click", (event) => {
+    document.getElementById("editableOutput").focus();
+});
+
+
+const BFUIStates = {
+    0: ["--svg: var(--env-off-icon); color: hsl(0, 100%, 40%);", "Unavailable"],
+    1: ["--svg: var(--env-empty-icon); color: hsl(120, 100%, 40%);", "Empty"],
+    2: ["--svg: var(--env-full-icon); color: hsl(120, 100%, 40%);", "Healthy"],
+    3: ["--svg: var(--env-paused-icon); color: hsl(40, 100%, 40%);", "Paused"],
+    4: ["--svg: var(--env-waiting-icon); color: hsl(40, 100%, 40%); animation: spinning 1s infinite;", "Waiting"],
+    5: ["--svg: var(--env-running-icon); color: hsl(40, 100%, 40%); animation: spinning 1s infinite;", "Running"],
 };
 
-class BFInterpreter {
-    constructor(config) {
-        this.config = config;
-        this.worker = new Worker("worker.js");
-        this.buffer = new SharedArrayBuffer();
-    }
-
-    calculateBufferBytes() {
-        return this.config.tapeLength * (this.config.i32 ? 4 : 1);
-    }
+function setUIState(state) {
+    const [style, text] = BFUIStates[state] || ["", ""];
+    document.getElementById("envBtn").style = style;
+    document.getElementById("envTxt").innerHTML = text;
 }
 
+const BFops = new Set([">","<","+","-",".",",","[","]"]);
 
+const BFStates = {
+    off: 0,  // BFI is unavailabe or turned off
+    empty: 1,  // BFI is blank and contains no data
+    full: 2,  // BFI has data in the tape and tape pointer but instruction pointer is set to 0
+    paused: 3,  // BFI is paused
+    waiting: 4,  // BFI is waiting for input for ',' command
+    running: 5,  // BFI is running
+};
 
+const BFEnvironment = {
+    state: 0,
+    config: {},
+    worker: null,
+    buffer: null,
+    views: {
+        flag: null,
+        pointers: null,
+        tape: null,
+    },
+    updateViews: () => {
+        if (!this.buffer) return;
+        this.views.flag = new Int8Array(this.buffer, 0, 1);
+        this.views.pointers = new Uint32Array(this.buffer, 1, 2);
+        this.views.tape = new Uint8Array(this.buffer, 9);
+    },
+    init: () => {
+        if (!this.worker) this.worker = new Worker("worker.js");
+        this.buffer = new SharedArrayBuffer((1*30000)+9);
+        this.updateViews();
+        this.worker.postMessage({type: "init", data: {config: this.config, buffer: this.buffer}});
+    },
+};
 
-
-
-
-
-/*(class BFConfig {
-    constructor() {}
-}
-
-class BFInterpreter {
-    static createTypedArray(buffer, bits, signed) {
-        
-    }
-    
-    constructor(config) {
-        this.buffer = new SharedArrayBuffer(config.maxCells);
-        this.array = new 
-        this.worker = new Worker("worker.js");
-        this.config = config;
-    }
-}*/
-
-
-
-
-
-const worker = new Worker("worker.js");
-const buffer = new SharedArrayBuffer(100);
-const view = new Uint8Array(buffer);
-worker.postMessage(buffer);
-console.log("SharedArrayBuffer");
-
-setTimeout(() => {console.log(Atomics.load(view, 0))}, 1000)
-
-
-
-
-
-
-/*
-class BrainfuckInterpreter {
-    constructor(script = "", max_cells = 30000) {
-        this.script = this.cleanScript(script);
-        this.array = [0];
-        this.max_cells = max_cells;  // if set to zero there is no limit
-        this.instructionPointer = 0;
-        this.dataPointer = 0;
-        this.stringToOperation = {
-            ">" : this.right,
-            "<" : this.left,
-            "+" : this.increment,
-            "-" : this.decrement,
-            "." : this.output,
-            "," : this.input,
-            "[" : this.loopStart,
-            "]" : this.loopEnd,
-        }
-    }
-
-    cleanScript(script) {
-        const allowedChars = [">","<","+","-",".",",","[","]"];
-        let cleanScript = "";
-        for (let i = 0; i < script.length; i++) {
-            if (allowedChars.includes(script[i])) cleanScript += script[i];
-        }
-        return cleanScript;
-    }
-
-    right() {
-        this.dataPointer++;
-        if (this.dataPointer === this.array.length) this.array.push(0);
-    }
-
-    left() {
-        this.dataPointer--;
-        this.popAllZeros();
-    }
-
-    increment() {
-        this.array[this.dataPointer]++;
-        if (this.array[this.dataPointer] > 255) this.array[this.dataPointer] = 0;
-    }
-
-    decrement() {
-        this.array[this.dataPointer]--;
-        if (this.array[this.dataPointer] < 0) this.array[this.dataPointer] = 255;
-    }
-
-    output() {}
-    input() {}
-    loopStart() {}
-    loopEnd() {}
-    
-    // removes unnecessary zeros //unnecessary code
-    popAllZeros() {
-        for (let i = this.array.length - 1; i > this.dataPointer; i--) {
-            if (this.array[i] === 0) this.array.pop();
-            else break;
-        }
-    }
-}
-
-//use web workers; add config;*/
+setUIState(0);

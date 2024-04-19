@@ -17,7 +17,7 @@ class BFInterpreter {
         this.buffer = buffer;
         this.flag = new Int8Array(this.buffer, 0, 1)
         this.pointers = new Uint32Array(this.buffer, 1, 2);  // 0: InstructionPointer, 1: TapePointer
-        this.tape = new Uint8Array(this.buffer, 9);  // MAKE DYNAMIC TYPE
+        this.tape = new Uint8Array(this.buffer, 9);  // MAKE DYNAMIC
         this.loopStack = [];
         this.script = '';
         this.opMap = createOpMap(this);
@@ -51,7 +51,7 @@ class BFInterpreter {
 
     input(ptrs) {
         postMessage({type: "input"});
-        this.stop();
+        return 1;
     }
 
     loopStart(ptrs) {
@@ -60,137 +60,35 @@ class BFInterpreter {
     }
 
     loopEnd(ptrs) {
-        if (Atomics.load(this.tape, ptrs[1])) ptrs[0] = this.loopStack[this.loopStack.length-1];
+        if (Atomics.load(this.tape, ptrs[1])) ptrs[0] = this.loopStack[this.loopStack.length-1] || -1;
         else this.loopStack.pop();
     }
 
-
-    stop(ptrs) {
-        clearInterval(this.interval);
-        this.interval = null;
-    }
-
     execute() {
+        if (Atomics.load(this.flag, 0)) return 1;
+
         let ptrs = [Atomics.load(this.pointers, 0), Atomics.load(this.pointers, 1)];
+
         for (; (ptrs[0] < this.script.length) && (!this.opMap[this.script[ptrs[0]]]); ptrs[0]++);
-        if (ptrs[0] >= this.script.length) return 1;
-        this.opMap[this.script[ptrs[0]]](ptrs);
+        if (ptrs[0] >= this.script.length) return -1;
+
+        let code = this.opMap[this.script[ptrs[0]]](ptrs);
+
         Atomics.store(this.pointers, 0, ptrs[0]++);
-        return 0;
+        
+        return code;
     }
 
     executeN(n) {
-        if (this.interval) return;
-        let count = 0;
-        this.interval = setInterval(() => {
-            this.execute();
-            count++;
-            if (count >= n) this.stop();
-        })
+        for (let i = 0; i < n; i++) {
+            if (execute()) break;
+        }
     }
 
     executeAll() {
-        if (this.interval) return;
-        this.interval = setInterval(this.execute);
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let config;
-let buffer;
-let tape;
-let instructionPointer;
-let tapePointer;
-let loopStack = [];
-let script = '';
-let interrupt = false;
-
-onmessage = (event) => {
-    switch (event.data.type) {
-        case 0:
-            init(event.data);
-            break;
-        case 1:
-            setScript(event.data);
-            break;
-        case 2:
-            execute();
-            break;
-        case 3:
-            executeAll();
-            break;
-    }
-}
-
-function init(data) {
-    buffer = data.buffer;
-}
-
-function setScript(data) {
-    script = data;
-}
-
-function execute() {
-
-}
-
-function executeAll() {
-    while (instructionPointer < script.length) {
-        setTimeout(execute());
-        if (interrupt) {
-            interrupt = false;
-            break;
+        while (true) {
+            if (execute()) break;
         }
+        this.pointers[0] = 0;
     }
 }
-
-
-/*const config = {initialized: false};
-const allowedChars = [">","<","+","-",".",",","[","]"];
-
-onmessage = (event) => {
-    if (!config.initialized && event.data.type === "init") {
-        config.maxCells = event.data.data.maxCells;
-    }
-}
-
-message = {
-    type: null,
-    data: {},
-}*/
