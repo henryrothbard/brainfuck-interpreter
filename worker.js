@@ -1,28 +1,39 @@
 // Maps chars to its operation
 const createOpMap = (bfi) => ({
-    ">" : bfi.right,
-    "<" : bfi.left,
-    "+" : bfi.increment,
-    "-" : bfi.decrement,
-    "." : bfi.output,
-    "," : bfi.input,
-    "[" : bfi.loopStart,
-    "]" : bfi.loopEnd,
+    ">" : bfi.right.bind(bfi),
+    "<" : bfi.left.bind(bfi),
+    "+" : bfi.increment.bind(bfi),
+    "-" : bfi.decrement.bind(bfi),
+    "." : bfi.output.bind(bfi),
+    "," : bfi.input.bind(bfi),
+    "[" : bfi.loopStart.bind(bfi),
+    "]" : bfi.loopEnd.bind(bfi),
 });
 
-
 class BFInterpreter {
-    constructor(config, buffer) {
-        this.config = config;
+    static tapeTypes = {
+        0: Uint8Array,
+        1: Int8Array,
+        2: Uint16Array,
+        3: Int16Array,
+    };
+
+    constructor() {
+        this.initialized = false;
+    }
+
+    init(tapeType, buffer) {
+        this.tapeType = tapeType;
         this.buffer = buffer;
-        this.flag = new Int8Array(this.buffer, 0, 1)
-        this.pointers = new Uint32Array(this.buffer, 1, 2);  // 0: InstructionPointer, 1: TapePointer
-        this.tape = new Uint8Array(this.buffer, 9);  // MAKE DYNAMIC
+        this.flag = new Int32Array(this.buffer, 0, 1)
+        this.pointers = new Uint32Array(this.buffer, 4, 2);  // 0: InstructionPointer, 1: TapePointer
+        this.tape = new (BFInterpreter.tapeTypes[tapeType] || Uint8Array)(this.buffer, 12);
         this.loopStack = [];
         this.script = '';
         this.opMap = createOpMap(this);
+        this.initialized = true;
+        postMessage({type: "state", data: 1});
     }
-
 
     right(ptrs) {
         if (ptrs[1] + 1 >= this.tape.length) return;
@@ -51,7 +62,7 @@ class BFInterpreter {
 
     input(ptrs) {
         postMessage({type: "input"});
-        return 1;
+        return 4;
     }
 
     loopStart(ptrs) {
@@ -65,30 +76,62 @@ class BFInterpreter {
     }
 
     execute() {
-        if (Atomics.load(this.flag, 0)) return 1;
+        if (Atomics.load(this.flag, 0)) return 3;
 
         let ptrs = [Atomics.load(this.pointers, 0), Atomics.load(this.pointers, 1)];
 
         for (; (ptrs[0] < this.script.length) && (!this.opMap[this.script[ptrs[0]]]); ptrs[0]++);
-        if (ptrs[0] >= this.script.length) return -1;
+        if (ptrs[0] >= this.script.length) return 2;
 
         let code = this.opMap[this.script[ptrs[0]]](ptrs);
 
-        Atomics.store(this.pointers, 0, ptrs[0]++);
+        Atomics.store(this.pointers, 0, ++ptrs[0]);
         
         return code;
     }
 
     executeN(n) {
+        if (!this.initialized) return;
+        postMessage({type: "state", data: 5});
+        let code = 0;
         for (let i = 0; i < n; i++) {
-            if (execute()) break;
+            code = this.execute();
+            if (code) break;
         }
+        if (code == 2) code = 3;
+        postMessage({type: "state", data: code});
     }
 
     executeAll() {
+        if (!this.initialized) return;
+        postMessage({type: "state", data: 5});
+        let code = 0;
         while (true) {
-            if (execute()) break;
+            code = this.execute();
+            if (code) break;
         }
-        this.pointers[0] = 0;
+        if (code == 2) this.resetInsPtr();
+        postMessage({type: "state", data: code});
+    }
+
+    setScript(script) {
+        this.script = script;
+        Atomics.store(this.pointers, 0, 0);
+    }
+
+    resetInsPtr() {
+        Atomics.store(this.pointers, 0, 0);
+        postMessage({type: "state", data: 2});
     }
 }
+const bfi = new BFInterpreter();
+
+const messageOps = {
+    init: ({tapeType, buffer}) => bfi.init(tapeType, buffer),
+    executeN: bfi.executeN.bind(bfi),
+    executeAll: bfi.executeAll.bind(bfi),
+    setScript: bfi.setScript.bind(bfi),
+    resetInsPtr: bfi.resetInsPtr.bind(bfi),
+};
+
+onmessage = ({data: {type, data}}) => messageOps[type](data);
