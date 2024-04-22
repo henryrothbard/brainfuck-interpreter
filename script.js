@@ -28,7 +28,7 @@ class UI {
         this.setState(0);
         this.panelFocus = 0; // 0: input panel, 1: output panel
         this.outputType = 0;
-        UI.elements.outputPanel.addEventListener("click", (e) => UI.elements.editableOutput.focus())
+        UI.elements.outputPanel.addEventListener("click", (e) => UI.elements.editableOutput.focus());
         const collapseMQ = window.matchMedia("(max-width: 768px)");
         const layoutFunc = ((e) => e.matches ? this.collapse() : this.expand()).bind(this);
         layoutFunc(collapseMQ);
@@ -63,6 +63,12 @@ class UI {
         this.updateEnvBtn(state);
         this.updateToolBtns(state);
     }
+
+    /* TO DO: cursor resets everytime function is called
+    updateInput() {
+        let e = UI.elements.inputPanel;
+        e.innerHTML = e.textContent.replace(/[^><+\-.,\[\]]/g, m => `<span class="nonOpText">${m}</span>`);
+    }*/
 
     updateOutput(outputs) {
 

@@ -168,6 +168,10 @@ button:focus, button:active {
   overflow-wrap: break-word;
 }
 
+.nonOpText {
+  color: darkgreen;
+}
+
 @media only screen and (max-width: 600px) {
   .hide600 {
     display: none !important;
