@@ -1,29 +1,49 @@
-// Event Listeners //
-document.getElementById("outputTerminal").addEventListener("click", (event) => {
-    document.getElementById("editableOutput").focus();
-});
+// I LOVE OOP!!!!!!
 
 class UI {
-    static {
-        this.elements = {
-            envBtn: document.getElementById("envBtn"),
-            envTxt: document.getElementById("envTxt"),
-            toolBtn0: document.getElementById("toolBtn0"),
-            toolBtn1: document.getElementById("toolBtn1"),
-            toolBtn2: document.getElementById("toolBtn2"),
-        };
-        this.envStates = {
-            0: ["--svg: var(--env-off-icon); color: hsl(0, 100%, 40%);", "Unavailable"],
-            1: ["--svg: var(--env-empty-icon); color: hsl(120, 100%, 40%);", "Empty"],
-            2: ["--svg: var(--env-full-icon); color: hsl(120, 100%, 40%);", "Full"],
-            3: ["--svg: var(--env-paused-icon); color: hsl(40, 100%, 40%);", "Paused"],
-            4: ["--svg: var(--env-waiting-icon); color: hsl(40, 100%, 40%);", "Waiting"],
-            5: ["--svg: var(--env-running-icon); color: hsl(40, 100%, 40%); animation: spin 1s infinite;", "Running"],
-        };
-    }
+    static elements = ((e) => {let r = {}; e.forEach(i => r[i] = document.getElementById(i)); return r;})([
+        "envBtn",
+        "envTxt",
+        "toolBtn0",
+        "toolBtn1",
+        "toolBtn2",
+        "panel1",
+        "panel2",
+        "inputPanel",
+        "outputPanel",
+        "staticOutput",
+        "editableOutput",
+    ]);
+    
+    static envStates = {
+        0: ["--svg: var(--env-off-icon); color: hsl(0, 100%, 40%);", "Unavailable"],
+        1: ["--svg: var(--env-empty-icon); color: hsl(120, 100%, 40%);", "Blank"],
+        2: ["--svg: var(--env-full-icon); color: hsl(120, 100%, 40%);", "Full"],
+        3: ["--svg: var(--env-paused-icon); color: hsl(40, 100%, 40%);", "Paused"],
+        4: ["--svg: var(--env-waiting-icon); color: hsl(40, 100%, 40%);", "Waiting"],
+        5: ["--svg: var(--env-running-icon); color: hsl(40, 100%, 40%); animation: spin 1s infinite;", "Running"],
+    };
 
     constructor() {
         this.setState(0);
+        this.panelFocus = 0; // 0: input panel, 1: output panel
+        this.outputType = 0;
+        UI.elements.outputPanel.addEventListener("click", (e) => UI.elements.editableOutput.focus())
+        const collapseMQ = window.matchMedia("(max-width: 768px)");
+        const layoutFunc = ((e) => e.matches ? this.collapse() : this.expand()).bind(this);
+        layoutFunc(collapseMQ);
+        collapseMQ.addEventListener("change", layoutFunc);
+    }
+
+    collapse() {
+        UI.elements.panel1.appendChild(UI.elements.outputPanel);
+        (this.panelFocus ? UI.elements.inputPanel : UI.elements.outputPanel).style = "display: none;"
+    }
+
+    expand() {
+        UI.elements.panel2.appendChild(UI.elements.outputPanel);
+        UI.elements.outputPanel.style = "";
+        UI.elements.inputPanel.style = "";
     }
 
     updateEnvBtn(state) {
@@ -43,18 +63,13 @@ class UI {
         this.updateEnvBtn(state);
         this.updateToolBtns(state);
     }
+
+    updateOutput(outputs) {
+
+    }
 }
 
 class BFEnv {
-    static states = {
-        off: 0,  // BFI is unavailabe or turned off
-        empty: 1,  // BFI is blank and contains no data
-        full: 2,  // BFI has data in the tape and tape pointer but instruction pointer is set to 0
-        paused: 3,  // BFI is paused
-        waiting: 4,  // BFI is waiting for input for ',' command
-        running: 5,  // BFI is running
-    };
-
     static tapeTypes = {
         0: Uint8Array,
         1: Int8Array,
@@ -83,6 +98,7 @@ class BFEnv {
         this.flag = new Int32Array(this.buffer, 0, 1);
         this.pointers = new Uint32Array(this.buffer, 4, 2);
         this.tape = new (BFEnv.tapeTypes[tapeType] || Uint8Array)(this.buffer, 12);
+        this.outputs = [];
         this.worker.postMessage({type: "init", data: {tapeType: tapeType, buffer: this.buffer}});
     }
 
@@ -94,13 +110,13 @@ class BFEnv {
     executeAll() {
         Atomics.store(this.flag, 0, 0);
         this.continueAfterInput = true;
-        this.worker.postMessage({type: "executeAll"});
+        this.worker.postMessage({type: "run"});
     }
 
     step() {
         Atomics.store(this.flag, 0, 0);
         this.continueAfterInput = false;
-        this.worker.postMessage({type: "executeN", data: 1});
+        this.worker.postMessage({type: "step"});
     }
 
     resetInsPtr() {
@@ -132,57 +148,8 @@ const ui = new UI();
 const bfe = new BFEnv();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const UI = {
-//     elements: {
-
-//     },
-//     envStatuses: {
-//         0: ["--svg: var(--env-off-icon); color: hsl(0, 100%, 40%);", "Unavailable"],
-//         1: ["--svg: var(--env-empty-icon); color: hsl(120, 100%, 40%);", "Empty"],
-//         2: ["--svg: var(--env-full-icon); color: hsl(120, 100%, 40%);", "Healthy"],
-//         3: ["--svg: var(--env-paused-icon); color: hsl(40, 100%, 40%);", "Paused"],
-//         4: ["--svg: var(--env-waiting-icon); color: hsl(40, 100%, 40%); animation: spin 1s infinite;", "Waiting"],
-//         5: ["--svg: var(--env-running-icon); color: hsl(40, 100%, 40%); animation: spin 1s infinite;", "Running"],
-//     },
-//     setEnvState: (state) => {
-//         [UI.elements.envBtn.style, UI.elements.envTxt.innerHTML] = UI.envStatuses[state] || UI.envStatuses[0];
-//     },
-//     outputTxt: "",
-// };
-
-// const BFops = new Set([">","<","+","-",".",",","[","]"]);
-
-// const BFStates = {
+// -- Unused --
+// states = {
 //     off: 0,  // BFI is unavailabe or turned off
 //     empty: 1,  // BFI is blank and contains no data
 //     full: 2,  // BFI has data in the tape and tape pointer but instruction pointer is set to 0
@@ -190,30 +157,3 @@ const bfe = new BFEnv();
 //     waiting: 4,  // BFI is waiting for input for ',' command
 //     running: 5,  // BFI is running
 // };
-
-// const BFEnvironment = {
-//     state: 0,
-//     config: {},
-//     worker: null,
-//     buffer: null,
-//     views: {
-//         flag: null,
-//         pointers: null,
-//         tape: null,
-//     },
-//     updateViews: () => {
-//         if (!this.buffer) return;
-//         this.views.flag = new Int8Array(this.buffer, 0, 1);
-//         this.views.pointers = new Uint32Array(this.buffer, 1, 2);
-//         this.views.tape = new Uint8Array(this.buffer, 9);
-//     },
-//     init: () => {
-//         if (!this.worker) this.worker = new Worker("worker.js");
-//         this.buffer = new SharedArrayBuffer((1*30000)+9);
-//         this.updateViews();
-//         this.worker.postMessage({type: "init", data: {config: this.config, buffer: this.buffer}});
-//     },
-
-// };
-
-// UI.setEnvState(0);

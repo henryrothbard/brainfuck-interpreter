@@ -87,22 +87,18 @@ class BFInterpreter {
 
         Atomics.store(this.pointers, 0, ++ptrs[0]);
         
-        return code;
+        return code || 0;
     }
 
-    executeN(n) {
+    step() {
         if (!this.initialized) return;
         postMessage({type: "state", data: 5});
-        let code = 0;
-        for (let i = 0; i < n; i++) {
-            code = this.execute();
-            if (code) break;
-        }
-        if (code == 2) code = 3;
+        code = this.execute();
+        if (code < 3) code = 3;
         postMessage({type: "state", data: code});
     }
 
-    executeAll() {
+    run() {
         if (!this.initialized) return;
         postMessage({type: "state", data: 5});
         let code = 0;
@@ -128,8 +124,8 @@ const bfi = new BFInterpreter();
 
 const messageOps = {
     init: ({tapeType, buffer}) => bfi.init(tapeType, buffer),
-    executeN: bfi.executeN.bind(bfi),
-    executeAll: bfi.executeAll.bind(bfi),
+    step: bfi.step.bind(bfi),
+    run: bfi.run.bind(bfi),
     setScript: bfi.setScript.bind(bfi),
     resetInsPtr: bfi.resetInsPtr.bind(bfi),
 };

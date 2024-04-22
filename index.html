@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <!--THIS SCRIPT IS VERY IMPORTANT AND NEEDS TO BE RAN FOR PAGE TO FUNCTION-->
   <script src="coi-serviceworker.min.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,13 +17,13 @@
 <body>
   <div id="header">
     <div id="titlebar">
-      <h1>BRAINFUCK<span class="hide500"> INTERPRETER</span></h1>
+      <h1>BRAINFUCK<span class="hide600"> INTERPRETER</span></h1>
       <button class="infoBtn svg"></button>
     </div>
     <div id="toolbar" class="noSelect">
       <div>
         <button id="envBtn" class="svg"></button>
-        <p id="envTxt" class="hide500"></p>
+        <p id="envTxt" class="hide600"></p>
       </div>
       <div class="centerTools">
         <button id="toolBtn0" class="toolBtn svg"></button>
@@ -35,8 +36,8 @@
     </div>
   </div>
   <div id="content">
-    <div class="panelContainer" id="panel1">
-      <div class="panel">
+    <div class="panelContainer">
+      <div class="panel" id="panel1">
         <div class="panelHead">
           <div class="panelTabBar">
             <button class="panelTab active">
@@ -47,13 +48,13 @@
             </button>
           </div>
         </div>
-        <div class="panelContent" contenteditable="true" spellcheck="false">
+        <div id="inputPanel" class="panelContent" contenteditable="true" spellcheck="false">
         </div>
       </div>
     </div>
     <div class="hide768 noSelect">|</div>
-    <div class="panelContainer hide768" id="panel2">
-      <div class="panel">
+    <div class="panelContainer hide768">
+      <div class="panel" id="panel2">
         <div class="panelHead">
           <div class="panelTabBar">
             <button class="panelTab active">
@@ -61,8 +62,9 @@
             </button>
           </div>
         </div>
-        <div id="outputTerminal" class="panelContent">
-          <span id="editableOutput" contenteditable="true" style="outline: none;"></span>
+        <div id="outputPanel" class="panelContent">
+          <span id="staticOutput"></span>
+          <span id="editableOutput" contenteditable="false" spellcheck="false" style="outline: none;"></span>
         </div>
       </div>
     </div>
