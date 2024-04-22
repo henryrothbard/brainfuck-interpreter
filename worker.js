@@ -93,7 +93,7 @@ class BFInterpreter {
     step() {
         if (!this.initialized) return;
         postMessage({type: "state", data: 5});
-        code = this.execute();
+        let code = this.execute();
         if (code < 3) code = 3;
         postMessage({type: "state", data: code});
     }
