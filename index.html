@@ -39,11 +39,11 @@
     <div class="panelContainer">
       <div class="panel" id="panel1">
         <div class="panelHead">
-          <div class="panelTabBar">
-            <button class="panelTab active">
+          <div id="p1TabBar" class="panelTabBar">
+            <button id="inputTab" class="panelTab active" onclick="ui.updateFocus(0)">
               Input
             </button>
-            <button class="panelTab show768" style="display: none;">
+            <button class="panelTab _show768" style="display: none;">
               Output
             </button>
           </div>
@@ -52,12 +52,12 @@
         </div>
       </div>
     </div>
-    <div class="hide768 noSelect">|</div>
+    <!-- <div class="hide768 noSelect" onclick="">|</div> !-->
     <div class="panelContainer hide768">
       <div class="panel" id="panel2">
         <div class="panelHead">
-          <div class="panelTabBar">
-            <button class="panelTab active">
+          <div id="p2TabBar" class="panelTabBar">
+            <button id="outputTab" class="panelTab active" onclick="ui.updateFocus(1)">
               Output
             </button>
           </div>

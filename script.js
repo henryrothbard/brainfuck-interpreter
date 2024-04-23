@@ -9,6 +9,10 @@ class UI {
         "toolBtn2",
         "panel1",
         "panel2",
+        "p1TabBar",
+        "p2TabBar",
+        "inputTab",
+        "outputTab",
         "inputPanel",
         "outputPanel",
         "staticOutput",
@@ -26,24 +30,48 @@ class UI {
 
     constructor() {
         this.setState(0);
+        this.isCollapsed = false;
         this.panelFocus = 0; // 0: input panel, 1: output panel
         this.outputType = 0;
-        UI.elements.outputPanel.addEventListener("click", (e) => UI.elements.editableOutput.focus());
+        UI.elements.outputPanel.addEventListener("click", UI.elements.editableOutput.focus);
         const collapseMQ = window.matchMedia("(max-width: 768px)");
-        const layoutFunc = ((e) => e.matches ? this.collapse() : this.expand()).bind(this);
+        const layoutFunc = (e => e.matches ? this.collapse() : this.expand()).bind(this);
         layoutFunc(collapseMQ);
         collapseMQ.addEventListener("change", layoutFunc);
     }
 
+    updateFocus(panel) {
+        UI.elements.outputPanel.style = "";
+        UI.elements.inputPanel.style = "";
+        this.panelFocus = panel
+        if (this.isCollapsed) {
+            if (panel) {
+                UI.elements.outputTab.classList.add("active");
+                UI.elements.inputTab.classList.remove("active");
+
+            } else {
+                UI.elements.outputTab.classList.remove("active");
+                UI.elements.inputTab.classList.add("active");
+            }
+            (this.panelFocus ? UI.elements.inputPanel : UI.elements.outputPanel).style = "display: none;";
+        } else {
+            UI.elements.outputTab.classList.add("active");
+            UI.elements.inputTab.classList.add("active");
+        }  
+    }
+
     collapse() {
+        this.isCollapsed = true;
         UI.elements.panel1.appendChild(UI.elements.outputPanel);
-        (this.panelFocus ? UI.elements.inputPanel : UI.elements.outputPanel).style = "display: none;"
+        UI.elements.p1TabBar.appendChild(UI.elements.outputTab);
+        this.updateFocus(this.panelFocus);
     }
 
     expand() {
+        this.isCollapsed = false;
         UI.elements.panel2.appendChild(UI.elements.outputPanel);
-        UI.elements.outputPanel.style = "";
-        UI.elements.inputPanel.style = "";
+        UI.elements.p2TabBar.appendChild(UI.elements.outputTab);
+        this.updateFocus(this.panelFocus);
     }
 
     updateEnvBtn(state) {
@@ -64,11 +92,11 @@ class UI {
         this.updateToolBtns(state);
     }
 
-    /* TO DO: cursor resets everytime function is called
+    // TO DO: cursor resets everytime function is called
     updateInput() {
         let e = UI.elements.inputPanel;
         e.innerHTML = e.textContent.replace(/[^><+\-.,\[\]]/g, m => `<span class="nonOpText">${m}</span>`);
-    }*/
+    }
 
     updateOutput(outputs) {
 
@@ -81,7 +109,7 @@ class BFEnv {
         1: Int8Array,
         2: Uint16Array,
         3: Int16Array, 
-        // Wanted to use Int32 but "[-]" would run in unreasonable time O(2^n)
+        // Wanted to use Int32 but "-[-]" would run in unreasonable time O(2^n)
     };
 
     constructor() {

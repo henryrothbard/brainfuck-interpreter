@@ -150,9 +150,10 @@ button:focus, button:active {
 
 .panelTab {
   height: 90%;
-  background-color: #808080;
+  background-color: darkgray;
   border: none;
   border-radius: 0.5rem 0.5rem 0 0;
+  padding: 0 10px;
 }
 
 .panelTab.active {
