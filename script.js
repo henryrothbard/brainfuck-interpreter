@@ -1,7 +1,7 @@
 // I LOVE OOP!!!!!!
 
 class UI {
-    static elements = ((e) => {let r = {}; e.forEach(i => r[i] = document.getElementById(i)); return r;})([
+    static elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r), {}))([
         "envBtn",
         "envTxt",
         "toolBtn0",
