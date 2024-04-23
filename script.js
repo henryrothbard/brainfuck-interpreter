@@ -125,7 +125,9 @@ class BFEnv {
     init(tapeType) {
         if (!this.worker) {
             this.worker = new Worker("worker.js");
-            this.worker.onmessage = ({data: {type, data}}) => {console.log({type, data}); this.messageTypes[type](data);};
+            this.worker.onmessage = ({data: {type, data}}) => {
+                console.log({type, data}); this.messageTypes[type](data);
+            };
         }
         this.tapeType = tapeType;
         this.buffer = new SharedArrayBuffer((1*30000)+12);
