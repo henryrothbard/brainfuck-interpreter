@@ -1,5 +1,9 @@
 // I LOVE OOP!!!!!!
 
+if (!crossOriginIsolated) {
+    document.getElementById("notSupportedDialog").open = true;
+}
+
 class UI {
     static elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r), {}))([
         "envBtn",
@@ -33,7 +37,7 @@ class UI {
         this.isCollapsed = false;
         this.panelFocus = 0; // 0: input panel, 1: output panel
         this.outputType = 0;
-        UI.elements.outputPanel.addEventListener("click", UI.elements.editableOutput.focus);
+        UI.elements.outputPanel.addEventListener("click", () => UI.elements.editableOutput.focus());
         const collapseMQ = window.matchMedia("(max-width: 768px)");
         const layoutFunc = (e => e.matches ? this.collapse() : this.expand()).bind(this);
         layoutFunc(collapseMQ);
