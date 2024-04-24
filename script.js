@@ -27,6 +27,8 @@ const messageTypes = {
     output: () => {},
 };
 
+let state, worker, tapeType, cellCount, buffer, flag, pointers, tape, outputs, continueAfterInput;
+
 {
     elements.outputPanel.addEventListener("click", () => elements.editableOutput.focus());
     const collapseMQ = window.matchMedia("(max-width: 768px)");
@@ -49,8 +51,6 @@ function collapse(v) {
         elements.p2TabBar.appendChild(elements.outputTab);
     }
 }
-
-let state, worker, tapeType, cellCount, buffer, flag, pointers, tape, outputs, continueAfterInput;
 
 function init(_tapeType, _cellCount) {
     if (!worker) {
