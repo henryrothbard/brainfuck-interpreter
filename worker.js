@@ -8,6 +8,7 @@ const createOpMap = (bfi) => ({
     "," : bfi.input.bind(bfi),
     "[" : bfi.loopStart.bind(bfi),
     "]" : bfi.loopEnd.bind(bfi),
+    "!" : bfi.interrupt.bind(bfi), // extra command
 });
 
 class BFInterpreter {
@@ -73,6 +74,10 @@ class BFInterpreter {
     loopEnd(ptrs) {
         if (Atomics.load(this.tape, ptrs[1])) ptrs[0] = this.loopStack[this.loopStack.length-1] || -1;
         else this.loopStack.pop();
+    }
+
+    interrupt(ptrs) {
+        return 3;
     }
 
     execute() {

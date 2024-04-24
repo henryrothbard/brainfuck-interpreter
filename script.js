@@ -32,7 +32,7 @@ let state, worker, tapeType, cellCount, buffer, flag, pointers, tape, outputs, c
 {
     elements.outputPanel.addEventListener("click", () => elements.editableOutput.focus());
     const collapseMQ = window.matchMedia("(max-width: 768px)");
-    const layoutFunc = (e => this.collapse(e.matches)).bind(this);
+    const layoutFunc = (e => collapse(e.matches))
     layoutFunc(collapseMQ);
     collapseMQ.addEventListener("change", layoutFunc); 
 }
@@ -64,7 +64,7 @@ function init(_tapeType, _cellCount) {
     buffer = new SharedArrayBuffer(((1 << (tapeType >> 1)) * cellCount) + 12);
     flag = new Int32Array(buffer, 0, 1);
     pointers = new Uint32Array(buffer, 4, 2);
-    tape = new (tapeTypes[tapeType] || Uint8Array)(this.buffer, 12);
+    tape = new (tapeTypes[tapeType] || Uint8Array)(buffer, 12);
     outputs = [];
     worker.postMessage({type: "init", data: {tapeType, buffer}});
 }
@@ -72,8 +72,9 @@ function init(_tapeType, _cellCount) {
 function setState(_state) {
     state = _state;
     document.body.setAttribute("state", state);
-    if (state < 5) {
-        const insPtr = Atomics.load(pointers, 0) - 1;  // to subtract 1 or not to
+    if (state < 3) elements.inputPanel.innerHTML = elements.inputPanel.textContent;
+    else if (state < 5) {
+        const insPtr = Atomics.load(pointers, 0) - 1; // to subtract 1 or to not
         const txt = elements.inputPanel.textContent;
         elements.inputPanel.innerHTML = txt.substring(0, insPtr)+`<span class="insPtrChar" contenteditable="false">${txt.charAt(insPtr)}</span>`+txt.substring(insPtr+1);
     }
