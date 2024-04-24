@@ -6,6 +6,7 @@ const elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r)
     "panel2",
     "p1TabBar",
     "p2TabBar",
+    "inputPanel",
     "outputTab",
     "outputPanel",
     "staticOutput",
@@ -49,9 +50,9 @@ function collapse(v) {
     }
 }
 
-let state, worker, tapeType, buffer, flag, pointers, tape, outputs, continueAfterInput;
+let state, worker, tapeType, cellCount, buffer, flag, pointers, tape, outputs, continueAfterInput;
 
-function init(_tapeType, cellCount) {
+function init(_tapeType, _cellCount) {
     if (!worker) {
         worker = new Worker("worker.js");
         worker.onmessage = ({data: {type, data}}) => {
@@ -59,6 +60,7 @@ function init(_tapeType, cellCount) {
         };
     }
     tapeType = _tapeType;
+    cellCount = _cellCount;
     buffer = new SharedArrayBuffer(((1 << (tapeType >> 1)) * cellCount) + 12);
     flag = new Int32Array(buffer, 0, 1);
     pointers = new Uint32Array(buffer, 4, 2);
@@ -70,16 +72,25 @@ function init(_tapeType, cellCount) {
 function setState(_state) {
     state = _state;
     document.body.setAttribute("state", state);
+    if (state < 5) {
+        const insPtr = Atomics.load(pointers, 0) - 1;  // to subtract 1 or not to
+        const txt = elements.inputPanel.textContent;
+        elements.inputPanel.innerHTML = txt.substring(0, insPtr)+`<span class="insPtrChar" contenteditable="false">${txt.charAt(insPtr)}</span>`+txt.substring(insPtr+1);
+    }
+    if (state > 2) elements.inputPanel.contentEditable = "false";
+    else elements.inputPanel.contentEditable = "true";
 }
 
 function run() {
+    if (state < 3) sendScript(elements.inputPanel.textContent);
     Atomics.store(flag, 0, 0);
     continueAfterInput = true;
     worker.postMessage({type: "run"});
 }
 
 function step() {
-    Atomics.store(this.flag, 0, 0);
+    if (state < 3) sendScript(elements.inputPanel.textContent);
+    Atomics.store(flag, 0, 0);
     continueAfterInput = false;
     worker.postMessage({type: "step"});
 }
@@ -89,7 +100,7 @@ function resetInsPtr() {
 }
 
 function pause() {
-    Atomics.store(this.flag, 0, 1);
+    Atomics.store(flag, 0, 1);
     setState(3)
 }
 
@@ -106,6 +117,16 @@ function shutdown() {
 
 function sendScript(script) {
     worker.postMessage({type: "setScript", data: script});
+}
+
+function tBtn0() {
+    if (state >= 3) stop();
+    else init(tapeType, cellCount);
+}
+
+function tBtn1() {
+    if (state >= 4) pause();
+    else run();
 }
 
 init(0, 30000);

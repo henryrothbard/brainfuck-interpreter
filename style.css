@@ -254,6 +254,9 @@ body[state="4"], body[state="5"] {
 }
 
 
+.insPtrChar {
+  background-color: gray;
+}
 
 .nonOpText {
   color: darkgreen;
