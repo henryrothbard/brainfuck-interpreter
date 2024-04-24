@@ -1,9 +1,145 @@
-// I LOVE OOP!!!!!!
+if (!crossOriginIsolated) document.getElementById("notSupportedDialog").open = true;
 
-if (!crossOriginIsolated) {
-    document.getElementById("notSupportedDialog").open = true;
+const elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r), {}))([
+    "content",
+    "panel1",
+    "panel2",
+    "p1TabBar",
+    "p2TabBar",
+    "outputTab",
+    "outputPanel",
+    "staticOutput",
+    "editableOutput",
+]);
+
+const tapeTypes = {
+    0: Uint8Array,
+    1: Int8Array,
+    2: Uint16Array,
+    3: Int16Array, 
+    // Wanted to use Int32 but "-[-]" would run in unreasonable time O(2^n)
+};
+
+const messageTypes = {
+    state: setState,
+    input: () => {},
+    output: () => {},
+};
+
+{
+    elements.outputPanel.addEventListener("click", () => elements.editableOutput.focus());
+    const collapseMQ = window.matchMedia("(max-width: 768px)");
+    const layoutFunc = (e => this.collapse(e.matches)).bind(this);
+    layoutFunc(collapseMQ);
+    collapseMQ.addEventListener("change", layoutFunc); 
 }
 
+function focusOutput(v) {
+    elements.content.classList.toggle("output", v);
+}
+
+function collapse(v) {
+    elements.content.classList.toggle("collapsed", v)
+    if (v) {
+        elements.panel1.appendChild(elements.outputPanel);
+        elements.p1TabBar.appendChild(elements.outputTab);
+    } else {
+        elements.panel2.appendChild(elements.outputPanel);
+        elements.p2TabBar.appendChild(elements.outputTab);
+    }
+}
+
+let state, worker, tapeType, buffer, flag, pointers, tape, outputs, continueAfterInput;
+
+function init(_tapeType, cellCount) {
+    if (!worker) {
+        worker = new Worker("worker.js");
+        worker.onmessage = ({data: {type, data}}) => {
+            console.log({type, data}); messageTypes[type](data);
+        };
+    }
+    tapeType = _tapeType;
+    buffer = new SharedArrayBuffer(((1 << (tapeType >> 1)) * cellCount) + 12);
+    flag = new Int32Array(buffer, 0, 1);
+    pointers = new Uint32Array(buffer, 4, 2);
+    tape = new (tapeTypes[tapeType] || Uint8Array)(this.buffer, 12);
+    outputs = [];
+    worker.postMessage({type: "init", data: {tapeType, buffer}});
+}
+
+function setState(_state) {
+    state = _state;
+    document.body.setAttribute("state", state);
+}
+
+function run() {
+    Atomics.store(flag, 0, 0);
+    continueAfterInput = true;
+    worker.postMessage({type: "run"});
+}
+
+function step() {
+    Atomics.store(this.flag, 0, 0);
+    continueAfterInput = false;
+    worker.postMessage({type: "step"});
+}
+
+function resetInsPtr() {
+    worker.postMessage({type: "resetInsPtr"});
+}
+
+function pause() {
+    Atomics.store(this.flag, 0, 1);
+    setState(3)
+}
+
+function stop() {
+    pause();
+    resetInsPtr();
+}
+
+function shutdown() {
+    worker.terminate();
+    worker = null;
+    setState(0);
+}
+
+function sendScript(script) {
+    worker.postMessage({type: "setScript", data: script});
+}
+
+init(0, 30000);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 class UI {
     static elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r), {}))([
         "envBtn",
@@ -11,6 +147,7 @@ class UI {
         "toolBtn0",
         "toolBtn1",
         "toolBtn2",
+        "content",
         "panel1",
         "panel2",
         "p1TabBar",
@@ -39,61 +176,28 @@ class UI {
         this.outputType = 0;
         UI.elements.outputPanel.addEventListener("click", () => UI.elements.editableOutput.focus());
         const collapseMQ = window.matchMedia("(max-width: 768px)");
-        const layoutFunc = (e => e.matches ? this.collapse() : this.expand()).bind(this);
+        const layoutFunc = (e => this.collapse(e.matches)).bind(this);
         layoutFunc(collapseMQ);
         collapseMQ.addEventListener("change", layoutFunc);
     }
 
-    updateFocus(panel) {
-        UI.elements.outputPanel.style = "";
-        UI.elements.inputPanel.style = "";
-        this.panelFocus = panel
-        if (this.isCollapsed) {
-            if (panel) {
-                UI.elements.outputTab.classList.add("active");
-                UI.elements.inputTab.classList.remove("active");
+    focusOutput(v) {
+        UI.elements.content.classList.toggle("output", v);
+    }
 
-            } else {
-                UI.elements.outputTab.classList.remove("active");
-                UI.elements.inputTab.classList.add("active");
-            }
-            (this.panelFocus ? UI.elements.inputPanel : UI.elements.outputPanel).style = "display: none;";
+    collapse(v) {
+        UI.elements.content.classList.toggle("collapsed", v)
+        if (v) {
+            UI.elements.panel1.appendChild(UI.elements.outputPanel);
+            UI.elements.p1TabBar.appendChild(UI.elements.outputTab);
         } else {
-            UI.elements.outputTab.classList.add("active");
-            UI.elements.inputTab.classList.add("active");
-        }  
-    }
-
-    collapse() {
-        this.isCollapsed = true;
-        UI.elements.panel1.appendChild(UI.elements.outputPanel);
-        UI.elements.p1TabBar.appendChild(UI.elements.outputTab);
-        this.updateFocus(this.panelFocus);
-    }
-
-    expand() {
-        this.isCollapsed = false;
-        UI.elements.panel2.appendChild(UI.elements.outputPanel);
-        UI.elements.p2TabBar.appendChild(UI.elements.outputTab);
-        this.updateFocus(this.panelFocus);
-    }
-
-    updateEnvBtn(state) {
-        [UI.elements.envBtn.style, UI.elements.envTxt.innerHTML] =
-        UI.envStates[state] || UI.envStates[0];
-    }
-
-    updateToolBtns(state) {
-        UI.elements.toolBtn0.style = "--svg: var(--reset-icon)";
-        UI.elements.toolBtn1.style = "--svg: var(--play-icon)";
-        UI.elements.toolBtn2.style = "--svg: var(--step-icon)";
-        if (state >= 3) UI.elements.toolBtn0.style = "--svg: var(--stop-icon)";
-        if (state >= 4) UI.elements.toolBtn1.style = "--svg: var(--pause-icon)";
+            UI.elements.panel2.appendChild(UI.elements.outputPanel);
+            UI.elements.p2TabBar.appendChild(UI.elements.outputTab);
+        }
     }
 
     setState(state) {
-        this.updateEnvBtn(state);
-        this.updateToolBtns(state);
+        document.body.setAttribute("state", state)
     }
 
     // TO DO: cursor resets everytime function is called
@@ -196,4 +300,4 @@ const bfe = new BFEnv();
 //     paused: 3,  // BFI is paused
 //     waiting: 4,  // BFI is waiting for input for ',' command
 //     running: 5,  // BFI is running
-// };
+// };*/

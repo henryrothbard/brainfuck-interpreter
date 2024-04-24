@@ -71,20 +71,69 @@ button:focus, button:active {
   min-width: 2rem;
 }
 
-@keyframes spin {
-  from {rotate: 0turn;} to {rotate: 1turn;}
-}
-
 #envBtn {
   height: 2.6rem; 
   width: 2.6rem;
   min-width: 2.6rem;
   vertical-align: middle;
+  --svg: var(--env-off-icon); 
+  color: hsl(0, 100%, 40%);
 }
 
 #envTxt {
   display: inline-block; 
   vertical-align: middle;
+}
+
+#envTxt::after {
+  content: "Unavailable";
+}
+
+body[state="1"] { 
+  #envBtn {
+    --svg: var(--env-empty-icon); 
+    color: hsl(120, 100%, 40%);
+  }
+  #envTxt::after {
+    content: "Blank";
+  }
+}
+body[state="2"] {  
+  #envBtn {
+    --svg: var(--env-full-icon); 
+    color: hsl(120, 100%, 40%);
+  }
+  #envTxt::after {
+    content: "Full";
+  }
+}
+body[state="3"] {
+  #envBtn {
+    --svg: var(--env-paused-icon); 
+    color: hsl(40, 100%, 40%);
+  }
+  #envTxt::after {
+    content: "Paused";
+  }
+}
+body[state="4"] {
+  #envBtn {
+    --svg: var(--env-waiting-icon); 
+    color: hsl(40, 100%, 40%);
+  }
+  #envTxt::after {
+    content: "Waiting";
+  }
+}
+body[state="5"] {
+ #envBtn {
+    --svg: var(--env-running-icon); 
+    color: hsl(40, 100%, 40%);
+    animation: spin 1s infinite;
+  }
+  #envTxt::after {
+    content: "Running";
+  }
 }
 
 .centerTools {
@@ -99,6 +148,26 @@ button:focus, button:active {
   width: 2.2rem;
   min-width: 2.2rem;
   vertical-align: middle;
+}
+
+#toolBtn0 {
+  --svg: var(--reset-icon);
+}
+#toolBtn1 {
+  --svg: var(--play-icon);
+}
+#toolBtn2 {
+  --svg: var(--step-icon);
+}
+body[state="3"], body[state="4"], body[state="5"] {
+  #toolBtn0 {
+    --svg: var(--stop-icon);
+  }
+}
+body[state="4"], body[state="5"] {
+  #toolBtn1 {
+    --svg: var(--pause-icon);
+  }
 }
 
 .settingsBtn {
@@ -150,13 +219,9 @@ button:focus, button:active {
 
 .panelTab {
   height: 90%;
-  background-color: darkgray;
   border: none;
   border-radius: 0.5rem 0.5rem 0 0;
   padding: 0 10px;
-}
-
-.panelTab.active {
   background-color: lightgray;
 }
 
@@ -169,8 +234,33 @@ button:focus, button:active {
   overflow-wrap: break-word;
 }
 
+#content.collapsed #outputTab,
+#content.collapsed.output #inputTab {
+  background-color: darkgray;
+}
+
+#content.collapsed.output #outputTab {
+  background-color: lightgray;
+}
+
+#content.collapsed #pC2,
+#content.collapsed #outputPanel,
+#content.collapsed.output #inputPanel {
+  display: none;
+}
+
+#content.collapsed.output #inputPanel {
+  display: initial;
+}
+
+
+
 .nonOpText {
   color: darkgreen;
+}
+
+@keyframes spin {
+  from {rotate: 0turn;} to {rotate: 1turn;}
 }
 
 @media only screen and (max-width: 600px) {

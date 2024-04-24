@@ -43,36 +43,32 @@
       <div class="panel" id="panel1">
         <div class="panelHead">
           <div id="p1TabBar" class="panelTabBar">
-            <button id="inputTab" class="panelTab active" onclick="ui.updateFocus(0)">
+            <button id="inputTab" class="panelTab active" onclick="focusOutput(0)">
               Input
             </button>
           </div>
         </div>
-        <div id="inputPanel" class="panelContent" contenteditable="true" spellcheck="false" onclick="ui.updateFocus(0)">
+        <div id="inputPanel" class="panelContent" contenteditable="true" spellcheck="false" onclick="focusOutput(0)">
         </div>
       </div>
     </div>
     <!-- <div class="hide768 noSelect" onclick="">|</div> !-->
-    <div class="panelContainer hide768">
+    <div class="panelContainer" id="pC2">
       <div class="panel" id="panel2">
         <div class="panelHead">
           <div id="p2TabBar" class="panelTabBar">
-            <button id="outputTab" class="panelTab active" onclick="ui.updateFocus(1)">
+            <button id="outputTab" class="panelTab active" onclick="focusOutput(1)">
               Output
             </button>
           </div>
         </div>
-        <div id="outputPanel" class="panelContent" onclick="ui.updateFocus(1)">
+        <div id="outputPanel" class="panelContent" onclick="focusOutput(1)">
           <span id="staticOutput"></span>
           <span id="editableOutput" contenteditable="true" spellcheck="false" style="outline: none;"></span>
         </div>
       </div>
     </div>
   </div>
-
-  <div style="display: none;">
-  </div>
-
   <script src="script.js"></script>
 </body>
 
