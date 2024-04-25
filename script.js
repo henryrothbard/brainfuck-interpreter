@@ -120,7 +120,12 @@ function setState(_state) {
     elements.inputPanel.contentEditable = (state < 3).toString();
     elements.editableOutput.contentEditable = (state == 4).toString();
     if (state < 5 && state > 2) highlightChar((Atomics.load(pointers, 0) || 1) - 1);
-    else if (state == 5) {const i = setInterval(() => {(state==5)||clearInterval(i); highlightChar((Atomics.load(pointers, 0) || 1) - 1);}, 200)}
+    else if (state == 5) {
+        const i = setInterval(() => {
+            (state == 5) || clearInterval(i); 
+            highlightChar((Atomics.load(pointers, 0) || 1) - 1);
+        }, 200);
+    }
     else clearHighlights();
 }
 
