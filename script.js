@@ -24,10 +24,15 @@ const tapeTypes = {
 const messageTypes = {
     state: setState,
     input: () => {},
-    output: () => {},
+    output: pushOutput,
 };
 
-let state, worker, tapeType, cellCount, buffer, flag, pointers, tape, outputs, continueAfterInput;
+let state = 0, 
+tapeType = 0, 
+cellCount = 30000, 
+worker, buffer, flag, pointers, tape, 
+outputs = [], 
+continueAfterInput = false;
 
 {
     elements.outputPanel.addEventListener("click", () => elements.editableOutput.focus());
@@ -58,7 +63,7 @@ function init(_tapeType, _cellCount) {
         worker.onmessage = ({data: {type, data}}) => {
             console.log({type, data}); messageTypes[type](data);
         };
-    }
+    } else stop();
     tapeType = _tapeType;
     cellCount = _cellCount;
     buffer = new SharedArrayBuffer(((1 << (tapeType >> 1)) * cellCount) + 12);
@@ -72,14 +77,20 @@ function init(_tapeType, _cellCount) {
 function setState(_state) {
     state = _state;
     document.body.setAttribute("state", state);
-    if (state < 3) elements.inputPanel.innerHTML = elements.inputPanel.textContent;
-    else if (state < 5) {
+    elements.inputPanel.contentEditable = (state < 3).toString();
+    elements.editableOutput.contentEditable = (state == 4).toString();
+    //if (state < 3) elements.inputPanel.innerHTML = elements.inputPanel.textContent; else
+    if (state < 5) {
         const insPtr = Atomics.load(pointers, 0) - 1; // to subtract 1 or to not
         const txt = elements.inputPanel.textContent;
-        elements.inputPanel.innerHTML = txt.substring(0, insPtr)+`<span class="insPtrChar" contenteditable="false">${txt.charAt(insPtr)}</span>`+txt.substring(insPtr+1);
+        elements.inputPanel.innerHTML = txt.substring(0, insPtr) + 
+        `<span class="insPtrChar" contenteditable="false">${txt.charAt(insPtr)}</span>` + 
+        txt.substring(insPtr+1);
     }
-    if (state > 2) elements.inputPanel.contentEditable = "false";
-    else elements.inputPanel.contentEditable = "true";
+}
+
+function pushOutput(v) {
+    outputs.push(v);
 }
 
 function run() {
@@ -102,7 +113,6 @@ function resetInsPtr() {
 
 function pause() {
     Atomics.store(flag, 0, 1);
-    setState(3)
 }
 
 function stop() {
@@ -130,7 +140,7 @@ function tBtn1() {
     else run();
 }
 
-init(0, 30000);
+init(tapeType, cellCount);
 
 
 
