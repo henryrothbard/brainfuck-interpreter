@@ -74,15 +74,6 @@ function init(_tapeType, _cellCount) {
     worker.postMessage({type: "init", data: {tapeType, buffer}});
 }
 
-function setState(_state) {
-    state = _state;
-    document.body.setAttribute("state", state);
-    elements.inputPanel.contentEditable = (state < 3).toString();
-    elements.editableOutput.contentEditable = (state == 4).toString();
-    if (state < 5 && state > 2) highlightChar((Atomics.load(pointers, 0) || 1) - 1);
-    else clearHighlights();
-}
-
 // NOT MY CODE
 function clearHighlights() {
     const highlights = elements.inputPanel.querySelectorAll('.insPtrChar');
@@ -122,6 +113,15 @@ function highlightChar(index) {
     }
 }
 // END NOT MY CODE
+
+function setState(_state) {
+    state = _state;
+    document.body.setAttribute("state", state);
+    elements.inputPanel.contentEditable = (state < 3).toString();
+    elements.editableOutput.contentEditable = (state == 4).toString();
+    if (state < 5 && state > 2) highlightChar((Atomics.load(pointers, 0) || 1) - 1);
+    else clearHighlights();
+}
 
 function pushOutput(v) {
     outputs.push(v);
