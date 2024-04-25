@@ -249,10 +249,9 @@ body[state="4"], body[state="5"] {
   display: none;
 }
 
-#content.collapsed.output #inputPanel {
-  display: initial;
+#content.collapsed.output #outputPanel {
+  display: unset;
 }
-
 
 .insPtrChar {
   background-color: gray;
