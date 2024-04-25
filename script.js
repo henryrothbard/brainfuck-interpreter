@@ -79,15 +79,49 @@ function setState(_state) {
     document.body.setAttribute("state", state);
     elements.inputPanel.contentEditable = (state < 3).toString();
     elements.editableOutput.contentEditable = (state == 4).toString();
-    //if (state < 3) elements.inputPanel.innerHTML = elements.inputPanel.textContent; else
-    if (state < 5) {
-        const insPtr = Atomics.load(pointers, 0) - 1; // to subtract 1 or to not
-        const txt = elements.inputPanel.textContent;
-        elements.inputPanel.innerHTML = txt.substring(0, insPtr) + 
-        `<span class="insPtrChar" contenteditable="false">${txt.charAt(insPtr)}</span>` + 
-        txt.substring(insPtr+1);
+    if (state < 5 && state > 2) highlightChar((Atomics.load(pointers, 0) || 1) - 1);
+    else clearHighlights();
+}
+
+// NOT MY CODE
+function clearHighlights() {
+    const highlights = elements.inputPanel.querySelectorAll('.insPtrChar');
+    highlights.forEach(span => {
+        const parent = span.parentNode;
+        parent.insertBefore(document.createTextNode(span.textContent), span);
+        parent.removeChild(span);
+    });
+}
+
+function highlightChar(index) {
+    clearHighlights();
+    let currentCount = 0;
+    let nodeStack = [elements.inputPanel], node, found = false;
+
+    while (nodeStack.length > 0 && !found) {
+        node = nodeStack.pop();
+        if (node.nodeType === 3) {
+            if (currentCount + node.length > index) {
+                let span = document.createElement('span');
+                span.className = 'insPtrChar';
+                span.textContent = node.textContent[index - currentCount];
+                span.setAttribute('contenteditable', 'false');
+
+                let afterText = node.splitText(index - currentCount);
+                afterText.textContent = afterText.textContent.substring(1);
+                node.parentNode.insertBefore(span, afterText);
+                found = true;
+            } else {
+                currentCount += node.length;
+            }
+        } else if (node.nodeType === 1) {
+            for (let i = node.childNodes.length - 1; i >= 0; i--) {
+                nodeStack.push(node.childNodes[i]);
+            }
+        }
     }
 }
+// END NOT MY CODE
 
 function pushOutput(v) {
     outputs.push(v);
@@ -128,6 +162,7 @@ function shutdown() {
 
 function sendScript(script) {
     worker.postMessage({type: "setScript", data: script});
+    console.log(script);
 }
 
 function tBtn0() {
