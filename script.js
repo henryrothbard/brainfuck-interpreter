@@ -1,5 +1,19 @@
 if (!crossOriginIsolated) document.getElementById("notSupportedDialog").open = true;
 
+const tapeTypes = {
+    0: Uint8Array,
+    1: Int8Array,
+    2: Uint16Array,
+    3: Int16Array, 
+    // Wanted to use Int32 but "-[-]" would run in unreasonable time O(2^n)
+};
+
+const messageTypes = {
+    state: setState,
+    input: () => {elements.editableOutput.contentEditable = "true"},
+    output: pushOutput,
+};
+
 const elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r), {}))([
     "content",
     "panel1",
@@ -13,26 +27,11 @@ const elements = (e => e.reduce((r, i) => (r[i] = document.getElementById(i), r)
     "editableOutput",
 ]);
 
-const tapeTypes = {
-    0: Uint8Array,
-    1: Int8Array,
-    2: Uint16Array,
-    3: Int16Array, 
-    // Wanted to use Int32 but "-[-]" would run in unreasonable time O(2^n)
-};
-
-const messageTypes = {
-    state: setState,
-    input: () => {},
-    output: pushOutput,
-};
-
 let state = 0, 
 tapeType = 0, 
 cellCount = 30000, 
-worker, buffer, flag, pointers, tape, 
-outputs = [], 
-continueAfterInput = false;
+worker, buffer, flag, pointers, tape, continueAfterInput,
+outputs = [];
 
 {
     elements.outputPanel.addEventListener("click", () => elements.editableOutput.focus());
@@ -61,7 +60,7 @@ function init(_tapeType, _cellCount) {
     if (!worker) {
         worker = new Worker("worker.js");
         worker.onmessage = ({data: {type, data}}) => {
-            console.log({type, data}); messageTypes[type](data);
+            messageTypes[type](data);
         };
     } else stop();
     tapeType = _tapeType;
@@ -118,26 +117,35 @@ function setState(_state) {
     state = _state;
     document.body.setAttribute("state", state);
     elements.inputPanel.contentEditable = (state < 3).toString();
-    elements.editableOutput.contentEditable = (state == 4).toString();
     if (state < 5 && state > 2) highlightChar((Atomics.load(pointers, 0) || 1) - 1);
-    else if (state == 5) {
+    else if (state == 5 && continueAfterInput) {
         const i = setInterval(() => {
-            (state == 5) || clearInterval(i); 
-            highlightChar((Atomics.load(pointers, 0) || 1) - 1);
+            if (state == 5) highlightChar((Atomics.load(pointers, 0) || 1) - 1); 
+            else clearInterval(i);
         }, 200);
     }
     else clearHighlights();
 }
 
+const decoder = new TextDecoder('ascii');
 function pushOutput(v) {
     outputs.push(v);
+    if (outputs.length > 10000) {
+        outputs = outputs.slice(1)
+    }
+    elements.staticOutput.innerHTML = decoder.decode(new Uint8Array(outputs));
+    if (continueAfterInput) executeAll();
+}
+
+function executeAll() {
+    if (state < 3) sendScript(elements.inputPanel.textContent);
+    continueAfterInput = true;
+    worker.postMessage({type: "run"});
 }
 
 function run() {
-    if (state < 3) sendScript(elements.inputPanel.textContent);
     Atomics.store(flag, 0, 0);
-    continueAfterInput = true;
-    worker.postMessage({type: "run"});
+    executeAll();
 }
 
 function step() {
@@ -153,6 +161,7 @@ function resetInsPtr() {
 
 function pause() {
     Atomics.store(flag, 0, 1);
+    setState(3);
 }
 
 function stop() {
@@ -172,12 +181,12 @@ function sendScript(script) {
 }
 
 function tBtn0() {
-    if (state >= 3) stop();
+    if (state > 2) stop();
     else init(tapeType, cellCount);
 }
 
 function tBtn1() {
-    if (state >= 4) pause();
+    if (state > 3) pause();
     else run();
 }
 
