@@ -27,7 +27,7 @@ const messageOps = {
     setScript: setScript,
     resetInsPtr: resetInsPtr,
     setInsPtr: setInsPtr,
-    setTapeVal: ({index, value}) => null,
+    setTapeVal: ({index, value}) => setTapeVal(index, value),
 };
 
 onmessage = ({data: {type, data}}) => messageOps[type](data);
@@ -138,3 +138,6 @@ function setInsPtr(v) {
     Atomics.store(pointers, 0, v);
 }
 
+function setTapeVal(i, v) {
+    Atomics.store(tape, i, v);
+}
