@@ -76,7 +76,7 @@ function init(_tapeType, _cellCount) {
     elements.editableOutput.contentEditable = "false";
 }
 
-// NOT MY CODE
+// Parts of this function were generated using ChatGPT 4
 function clearHighlights() {
     const highlights = elements.inputPanel.querySelectorAll('.insPtrChar');
     highlights.forEach(span => {
@@ -86,6 +86,7 @@ function clearHighlights() {
     });
 }
 
+// Parts of this function were generated using ChatGPT 4
 function highlightChar(index) {
     clearHighlights();
     let currentCount = 0;
@@ -114,7 +115,6 @@ function highlightChar(index) {
         }
     }
 }
-// END NOT MY CODE
 
 function setState(_state) {
     state = _state;
