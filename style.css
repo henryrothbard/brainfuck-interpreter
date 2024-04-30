@@ -95,7 +95,7 @@ body[state="1"] {
     color: hsl(120, 100%, 40%);
   }
   #envTxt::after {
-    content: "Blank";
+    content: "Empty";
   }
 }
 body[state="2"] {  
@@ -104,7 +104,7 @@ body[state="2"] {
     color: hsl(120, 100%, 40%);
   }
   #envTxt::after {
-    content: "Full";
+    content: "Done";
   }
 }
 body[state="3"] {
@@ -250,7 +250,7 @@ body[state="4"], body[state="5"] {
 }
 
 #content.collapsed.output #outputPanel {
-  display: unset;
+  display: block;
 }
 
 .insPtrChar {

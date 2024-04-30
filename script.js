@@ -10,7 +10,7 @@ const tapeTypes = {
 
 const messageTypes = {
     state: setState,
-    input: () => {elements.editableOutput.contentEditable = "true"},
+    input: requestInput,
     output: pushOutput,
 };
 
@@ -71,6 +71,9 @@ function init(_tapeType, _cellCount) {
     tape = new (tapeTypes[tapeType] || Uint8Array)(buffer, 12);
     outputs = [];
     worker.postMessage({type: "init", data: {tapeType, buffer}});
+    elements.staticOutput.innerHTML = "";
+    elements.editableOutput.innerHTML = "";
+    elements.editableOutput.contentEditable = "false";
 }
 
 // NOT MY CODE
@@ -117,6 +120,7 @@ function setState(_state) {
     state = _state;
     document.body.setAttribute("state", state);
     elements.inputPanel.contentEditable = (state < 3).toString();
+    if (state < 4) continueAfterInput = false;
     if (state < 5 && state > 2) highlightChar((Atomics.load(pointers, 0) || 1) - 1);
     else if (state == 5 && continueAfterInput) {
         const i = setInterval(() => {
@@ -135,6 +139,30 @@ function pushOutput(v) {
     }
     elements.staticOutput.innerHTML = decoder.decode(new Uint8Array(outputs));
     if (continueAfterInput) executeAll();
+}
+
+function handleInput(e) {
+    if (e.key === "Enter") {
+        const inpField = elements.editableOutput;
+        inpField.removeEventListener("keydown", handleInput);
+        e.preventDefault();
+        inpField.contentEditable = "false";
+
+        let val = 0;
+        if (inpField.textContent[0] != '\\') val = inpField.textContent.charCodeAt(0);
+        else val = parseInt(inpField.textContent.slice(1)) || 0;
+        Atomics.store(tape, Atomics.load(pointers, 1), val);
+
+        inpField.textContent = "";
+        pushOutput(val);
+    }
+}
+
+function requestInput() {
+    const inpField = elements.editableOutput;
+    inpField.contentEditable = "true";
+    inpField.focus();
+    inpField.addEventListener("keydown", handleInput);
 }
 
 function executeAll() {
@@ -177,7 +205,10 @@ function shutdown() {
 
 function sendScript(script) {
     worker.postMessage({type: "setScript", data: script});
-    console.log(script);
+}
+
+function setTapeVal(i, v) {
+    worker.postMessage({type: "setTapeVal", data: {index: i, value: v}});
 }
 
 function tBtn0() {

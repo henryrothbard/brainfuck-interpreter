@@ -77,11 +77,11 @@ function input(ptrs) {
 
 function loopStart(ptrs) {
     if (Atomics.load(tape, ptrs[1])) loopStack.push(ptrs[0]);
-    else for (; (ptrs[0] < script.length) && (script[ptrs[0]] != "]"); ptrs[0]++);
+    else for (; (ptrs[0] < script.length) && (script[ptrs[0]] != ']'); ptrs[0]++);
 }
 
 function loopEnd(ptrs) {
-    if (Atomics.load(tape, ptrs[1])) ptrs[0] = loopStack[loopStack.length-1];
+    if (Atomics.load(tape, ptrs[1])) ptrs[0] = loopStack[loopStack.length-1] || -1;
     else loopStack.pop();
 }
 
@@ -130,7 +130,7 @@ function setScript(_script) {
 }
 
 function resetInsPtr() {
-    Atomics.store(pointers, 0, 0);
+    setInsPtr(0);
     postMessage({type: "state", data: 2});
 }
 
